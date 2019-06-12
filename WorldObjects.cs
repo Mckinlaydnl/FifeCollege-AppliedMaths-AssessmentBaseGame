@@ -51,6 +51,7 @@ namespace Assessment
         public float scale = 1;
         public bool Lit = true;
         public Vector3 storedPos;
+        public Vector3 collisionOffSet = Vector3.Zero;
         public BoundingBox hitBox
         {
             get
@@ -61,6 +62,21 @@ namespace Assessment
                 // CODE FOR TASK 3 SHOULD BE ENTERED HERE
                 //
                 ///////////////////////////////////////////////////////////////////
+               
+                // Find the center first, by starting at the model's world position
+                // then adding an offset if the model's center also happens to be offset- scaled by the model's scale 
+                b.Min = position + mesh.Meshes[0].BoundingSphere.Center + collisionOffSet;
+
+                // Then move this center to the top left corner by subtracting half the size of the model
+                // Calculated by its radius and scaled by visual and collision scales
+                b.Min.X -= (mesh.Meshes[0].BoundingSphere.Radius) * collisionScale.X * scale;
+                b.Min.Y -= (mesh.Meshes[0].BoundingSphere.Radius) * collisionScale.Y * scale;
+                b.Min.Z -= (mesh.Meshes[0].BoundingSphere.Radius) * collisionScale.Z * scale;
+
+                // Find the max (the opposite corner) by adding on the model size, scaled
+                b.Max.X = b.Min.X + mesh.Meshes[0].BoundingSphere.Radius * 3 * collisionScale.X * scale;
+                b.Max.Y = b.Min.Y + mesh.Meshes[0].BoundingSphere.Radius * 2 * collisionScale.Y * scale;
+                b.Max.Z = b.Min.Z + mesh.Meshes[0].BoundingSphere.Radius * 3 * collisionScale.Z * scale;
                 return b;
             }
         }
@@ -84,8 +100,21 @@ namespace Assessment
                                                                       //
 
                     // CODE FOR TASK 1 SHOULD BE ENTERED HERE
-                    //
-                    ///////////////////////////////////////////////////////////////////
+                    // 1. Scale
+                    // Scale our model by multiplying the world matrix by a scale matrix
+                    // We can have XNA do this by using CreateScale()
+                    effect.World *= Matrix.CreateScale(scale);
+
+                    // 2. Rotation 
+                    // Rotate our model in the game world
+                    effect.World *= Matrix.CreateRotationX(rotation.X); // Rotate around the x axis
+                    effect.World *= Matrix.CreateRotationY(rotation.Y); // Rotate around the y axis
+                    effect.World *= Matrix.CreateRotationZ(rotation.Z); // Rotate around the z axis
+
+                    // 3. Translation / position 
+                    // Move our model to the correct place in the game world
+                    effect.World *= Matrix.CreateTranslation(position);
+
                     // the following effects are related to lighting and texture  settings, feel free to tweak them to see what happens.
                     effect.LightingEnabled = true;
                     effect.Alpha = Alpha; //  amount of transparency
@@ -97,6 +126,29 @@ namespace Assessment
                     effect.DirectionalLight0.SpecularColor = light.specularColor; // the directional light's colour used for highlights
                     effect.DirectionalLight0.Direction = light.direction; // the direction of the light
                     effect.EmissiveColor = new Vector3(0.15f);
+
+                    // ----------------------------------
+                    // VIEW MATRIX
+                    // ----------------------------------
+                    // This puts the model in relation to where our camera is, and the direction of our camera.
+                    effect.View = Matrix.CreateLookAt(
+                        cam.position,
+                        cam.target,
+                        Vector3.Up
+                        );
+
+                    //////////////////////////
+                    // Projection Matrix
+                    //////////////////////////
+                    ///// Projection changes from view space (3D) to screen space (2D)
+                    ///// Can be either orthographic or perspective
+
+                    //Perspective
+                    effect.Projection = Matrix.CreatePerspectiveFieldOfView(
+                        cam.fieldOfView,
+                        cam.aspectRatio,
+                        cam.nearPlane,
+                        cam.farPlane);
                 }
                 mesh.Draw(); // draw the current mesh using the effects.
             }
