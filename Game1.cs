@@ -366,7 +366,7 @@ namespace Assessment
 
 
 
-            float p = -2 * t * t * t + 3 * t * t;
+            float p = -2f * t * t * t + 3f * t * t;
 
 
             // Determine the total distance to be traveled
