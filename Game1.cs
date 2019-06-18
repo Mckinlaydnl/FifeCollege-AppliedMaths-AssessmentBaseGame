@@ -364,9 +364,9 @@ namespace Assessment
             // Produces a fraction of the complete distance 
             // This is our scaling factor
 
-           
 
-            float p = -1 * t + 2f * t;
+
+            float p = -2 * t * t * t + 3 * t * t;
 
 
             // Determine the total distance to be traveled
