@@ -363,7 +363,11 @@ namespace Assessment
             // Using a derived quadratic function
             // Produces a fraction of the complete distance 
             // This is our scaling factor
-            float p = -2 * t * t * t + 3 * t * t;
+
+           
+
+            float p = -1 * t + 2f * t;
+
 
             // Determine the total distance to be traveled
             Vector3 totalDistance = endPos - initialPos;
